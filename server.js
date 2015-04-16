@@ -1,159 +1,391 @@
-#!/bin/env node
-//  OpenShift sample Node application
 var express = require('express');
-var fs      = require('fs');
+
+var app = express();
+var bodyParser = require('body-parser');
+var multer = require('multer');
+var mongoose = require('mongoose');
+var db = mongoose.connect('mongodb://localhost/practice1');
+// db.UserSchema.drop
 
 
-/**
- *  Define the sample application.
- */
-var SampleApp = function() {
-
-    //  Scope.
-    var self = this;
+var cheerio = require("cheerio");
+var request = require("request");
 
 
-    /*  ================================================================  */
-    /*  Helper functions.                                                 */
-    /*  ================================================================  */
 
-    /**
-     *  Set up server IP address and port # using env variables/defaults.
-     */
-    self.setupVariables = function() {
-        //  Set the environment variables we need.
-        self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
-        self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
-
-        if (typeof self.ipaddress === "undefined") {
-            //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
-            //  allows us to run/test the app locally.
-            console.warn('No OPENSHIFT_NODEJS_IP var, using 127.0.0.1');
-            self.ipaddress = "127.0.0.1";
-        };
-    };
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var cookieParser = require('cookie-parser')
+var session = require('express-session');
 
 
-    /**
-     *  Populate the cache.
-     */
-    self.populateCache = function() {
-        if (typeof self.zcache === "undefined") {
-            self.zcache = { 'index.html': '' };
+// to configure :
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(multer()); // for parsing multipart/form-data
+
+
+
+
+app.use(session({ secret: 'this is the secret' }));
+// resave: true,
+//  saveUninitialized: true
+//})); // encrypted, sign the session id with this given string only if u have this string u can use it; paswd for session id 
+app.use(cookieParser());  // parse cookie and create a map we can use 
+app.use(passport.initialize());
+app.use(passport.session()); // U NEED TO CONFIGURE PASSPORT'S SESSION AFTER U CONFIGURE EXPRESSES SESSION. THIS ORDER IS VERY IMP
+
+app.use(express.static(__dirname + '/public'));
+
+//-------------------------------------------
+
+var UserSchema = new mongoose.Schema({
+    username: String,
+    password: String,
+    first: String,
+    last: String,
+    email: String
+
+}, { collection: "UserModel" });
+
+
+var UserModel = mongoose.model("UserModel", UserSchema);
+
+
+//var alice = new usermodel({
+
+//    username: 'alice',
+//    password: 'alice',
+//    first: 'alice',
+//    last: 'wonderland',
+//    email: 'alice@wonderland.com'
+//});
+//alice.save();
+
+
+//-------------------------------------------
+
+
+
+
+
+
+var name; // name given by the user to that url
+
+
+
+
+var users =
+    [{ username: 'alice', password: 'alice', firstName: 'Alice', lastName: 'Wonderland', roles: ['admin', 'teacher'] },
+    { username: 'charlie', password: 'charlie', firstName: 'Charlie', lastName: 'Wonderland', roles: ['teacher'] },
+    { username: 'meera', password: 'meera', firstName: 'Meera', lastName: 'Udani', roles: ['student'] }
+
+
+    ];
+
+
+//------------------------------------------------------
+
+var auth = function (req, res, next) {
+
+    if (!req.isAuthenticated()) {
+        res.send(401);
+
+    }
+
+    else
+        next();
+};
+
+
+
+//------------------------------------------------------
+
+
+app.get('/loggedin', function (req, res) {
+    res.send(req.isAuthenticated() ? req.user : '0');
+
+});
+
+
+
+app.post('/check', function (req, res) {
+
+
+    //console.log(req.body.username);
+    var username = req.body.username;
+    console.log("server username check  " + username);
+    var password = req.body.password;
+    var first = req.body.first;
+    var last = req.body.last;
+    var email = req.body.email;
+    console.log(" server check     pswd  " + password + "fist last email  " + first + "   " + last + "  " + email);
+
+    UserModel.findOne({ username: username }, function (err, user) {
+        if (user) {
+            console.log("found user   " + user);
+            res.send("1");
+            //return done(null, false, { message: 'User already exists' });
+
+
+        }
+        else {
+
+            console.log(" user not found");
+            console.log("when user is not found   " + user);
+            res.send("0");
+            //res.send(user);
+            //return done(null, user);
         }
 
-        //  Local cache for static content.
-        self.zcache['index.html'] = fs.readFileSync('./index.html');
-    };
+
+    });
+
+});
 
 
-    /**
-     *  Retrieve entry (content) from cache.
-     *  @param {string} key  Key identifying content to retrieve from cache.
-     */
-    self.cache_get = function(key) { return self.zcache[key]; };
 
 
-    /**
-     *  terminator === the termination handler
-     *  Terminate server on receipt of the specified signal.
-     *  @param {string} sig  Signal to terminate on.
-     */
-    self.terminator = function(sig){
-        if (typeof sig === "string") {
-           console.log('%s: Received %s - terminating sample app ...',
-                       Date(Date.now()), sig);
-           process.exit(1);
-        }
-        console.log('%s: Node server stopped.', Date(Date.now()) );
-    };
 
+app.post('/register', function (req, res) {
+    //var newUser = new UserModel(req.body);
+    var username = req.body.username;
+    console.log("server register username  " + username);
+    var password = req.body.password;
+    var first = req.body.first;
+    var last = req.body.last;
+    var email = req.body.email;
+    console.log("server register     pswd  " + password + "fist last email  " + first + "   " + last + "  " + email);
 
-    /**
-     *  Setup termination handlers (for exit and a list of signals).
-     */
-    self.setupTerminationHandlers = function(){
-        //  Process on exit and signals.
-        process.on('exit', function() { self.terminator(); });
+    var newUser = new UserModel({
+        username: username,
+        password: password,
+        first: first,
+        last: last,
+        email: email
+    })
+    console.log(newUser);
+    newUser.save(function (err, user) {
 
-        // Removed 'SIGPIPE' from the list - bugz 852598.
-        ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
-         'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'
-        ].forEach(function(element, index, array) {
-            process.on(element, function() { self.terminator(element); });
+        req.login(user, function (err) {
+
+            if (err) {
+                return next(err);
+            }
+            res.json(user);
         });
-    };
+
+    });
+
+});
 
 
-    /*  ================================================================  */
-    /*  App server functions (main app logic here).                       */
-    /*  ================================================================  */
 
-    /**
-     *  Create the routing table entries + handlers for the application.
-     */
-    self.createRoutes = function() {
-        self.routes = { };
-
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
-        };
-
-        self.routes['/'] = function(req, res) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
-        };
-    };
-
-
-    /**
-     *  Initialize the server (express) and create the routes and register
-     *  the handlers.
-     */
-    self.initializeServer = function() {
-        self.createRoutes();
-        self.app = express.createServer();
-
-        //  Add handlers for the app (from the routes).
-        for (var r in self.routes) {
-            self.app.get(r, self.routes[r]);
+app.post('/api/scrap', function (req, res) {
+    //console.log(" started");
+    name = req.body.name;
+    var link = req.body.link;
+    var choice = req.body.choice;
+    console.log("The choice of user displayed in the server    " + choice);
+    //console.log("server from " + name);
+    /*
+    request('http://www.google.com', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            console.log(body) // Show the HTML for the Google homepage. 
         }
-    };
+    })
+    */
+    var parsedResults = [];
+
+    request({
+        url: link,
+    }, function (error, response, html) {
+        //console.log("from request fun in server " + link);
+        var $ = cheerio.load(html);
+
+        if (choice == 'p' || choice == 'div') {
+            $(choice).each(function () {
+
+                var data = $(this).text();
+
+                //console.log(data);
+                var jsonData = {
+
+                    dataUrl: link,
+                    tagData: data
+                };
 
 
-    /**
-     *  Initializes the sample application.
-     */
-    self.initialize = function() {
-        self.setupVariables();
-        self.populateCache();
-        self.setupTerminationHandlers();
 
-        // Create the express server and routes.
-        self.initializeServer();
-    };
+                parsedResults.push(jsonData);
+            });
+        }
+        else {
+
+            $('p', 'div').each(function () {
+
+                var data = $(this).text();
+
+                //console.log(data);
+                var jsonData = {
+
+                    dataUrl: link,
+                    tagData: data
+                };
 
 
-    /**
-     *  Start the server (starts up the sample application).
-     */
-    self.start = function() {
-        //  Start the app on the specific interface (and port).
-        self.app.listen(self.port, self.ipaddress, function() {
-            console.log('%s: Node server started on %s:%d ...',
-                        Date(Date.now() ), self.ipaddress, self.port);
+
+                parsedResults.push(jsonData);
+            });
+        }
+
+        res.send(parsedResults);
+
+    });
+
+});
+
+
+var likedData = [];  // user's saved data for that URL
+
+
+
+
+
+var UserDataSchema = new mongoose.Schema({
+    userName: String,
+    savedData: Array
+
+}, { collection: "UserData" });
+
+
+var UserData = mongoose.model("UserData", UserDataSchema);
+
+
+app.post('/api/save', auth, function (req, res) {
+    //console.log(req.body.d);
+
+    var d1 = new UserData({ userName: 'Meera', savedData: req.body.d });
+    d1.save(function () {
+        UserData.find(function (err, docs) {
+            if (err != null)
+            { res.send('/failure'); }
+            else
+            {
+                console.log('saved');
+                res.send('/done');
+            }
+
         });
-    };
 
-};   /*  Sample Application.  */
-
+    });
 
 
-/**
- *  main():  Main code.
- */
-var zapp = new SampleApp();
-zapp.initialize();
-zapp.start();
+});
 
+
+
+passport.use(new LocalStrategy(
+    function (username, password, done) {
+
+        UserModel.findOne({ username: username, password: password }, function (err, user) {
+            if (user) {
+                return done(null, user);
+
+            }
+            return done(null, false, { message: 'Unable to login' });
+
+        });
+
+        //for (var u in users) {
+        //    if (username == users[u].username && password == users[u].password) {
+        //        return done(null, users[u]);
+        //    }
+
+        //}
+    }
+        ));
+
+
+passport.serializeUser(function (user, done) {  // to encrypt
+    done(null, user);
+
+});
+
+passport.deserializeUser(function (user, done) {  // to decrypt
+    done(null, user);
+
+});
+
+
+
+
+app.post('/login', passport.authenticate('local'), function (req, res) {
+
+    var user = req.body;
+    //console.log("cookies:  " + req.cookies);
+    res.json(user);
+});
+
+
+
+app.post('/api/userdata', auth, function (req, res) {
+    //console.log(req.body.d);
+    console.log("in server userdata")
+    var userdata = UserData.find({ userName: 'ABC' }, 'savedData.dataUrl', function (err, docs) {
+        console.log(docs);
+        res.json(docs);
+    });
+
+
+
+});
+
+
+
+app.post('/logout', function (req, res) {
+
+    req.logout();
+    res.send(200);
+});
+
+
+
+
+
+
+
+/*     // SIR'S EXAMPLE: 
+
+app.get('/api/form', function (req, res) {
+    Form.find(function (err, data) {
+        res.json(data);
+    });
+});
+
+app.get('/api/form/:id', function (req, res) {
+    Form.findById(req.params.id, function (err, data) {
+        res.json(data);
+
+    });
+});
+*/
+
+//-----
+
+
+
+app.post('/api/data', function (req, res) {
+    var like = req.body.sdata;
+
+    likedData.push(like);
+
+});
+
+
+var port = process.env.OPENSHIFT_NODEJS_IP || 3000;
+var ip = process.env.OPENSHIFT_NODEJS_PORT || '127.0.0.1';
+
+
+app.listen(port, ip);
