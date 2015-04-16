@@ -1,0 +1,67 @@
+﻿
+
+body{
+    background-image: url(../images/mum4.jpg);
+    background-size:cover;
+    background-position: center;
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+    -moz-background-size: cover;
+    -o-background-size: cover; 
+    -webkit-background-size: cover;
+    color: black;
+     margin: initial;
+     margin-left: 150px;
+     margin-right: 100px;
+     margin-top: 100px;
+      align-content: center;
+}
+/*
+.main{
+    background-color: rgba(0, 0, 0,0.5);
+
+}
+    */
+
+.mymodal{
+    padding-bottom: 50px;
+}
+
+
+a{
+    color: #FAFCFD;
+}
+
+
+
+.myview{
+    color:white;
+}
+
+ body {
+           
+        }
+
+        h1 {
+            text-align: center;
+            
+        }
+        .white-font{
+            color:white;
+        }
+
+
+        .mytable{
+            background-color:rgba(0, 0, 0,0.5);
+            font-size:20px;
+            
+            
+        }
+
+        .mynav{
+            //padding-bottom:50px;
+            //padding-top: 50px;
+            margin-bottom: 50px;
+            margin-top: 50px;
+
+        }
