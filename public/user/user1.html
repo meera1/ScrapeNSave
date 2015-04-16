@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>user event handler</title>
+ 
+  
+   <style>
+       body{
+           margin: initial;
+           margin-left: 150px;
+           margin-right: 100px;
+           margin-top: 100px;
+           align-content:center;
+
+       }
+       h1, h4{
+           text-align:center;
+       }
+   </style>
+</head>
+<body ng-app="UserApp">
+    <div ng-controller="UserController">
+
+        <h1>Doneeeeeee</h1>
+        <h4>
+            This is the page where the user is routed. Which is shown in the same page as before and
+            hence it is a basic single page applicaiton
+        </h4>
+        <!-- <img src="/public/job.png"/>-->
+        <!--div>
+            <button class="btn btn-block btn-primary" ng-click="loadPage()">Scrape more data</button>
+        </!--div>
+            -->
+
+        <div>
+            <a href="../main/redirect.html" class="btn btn-primary btn-lg pull-left">Scrape More Data</a>
+        </div>
+        <div>
+            <button class="btn btn-primary btn-lg pull-right" ng-click="loadUrl()">Show My URL's</button>
+         </div>
+    </div>
+</body>
+</html>

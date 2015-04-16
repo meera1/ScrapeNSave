@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+        body {
+            margin: initial;
+            margin-left: 150px;
+            margin-right: 100px;
+            margin-top: 100px;
+            align-content: center;
+        }
+
+        h1, h4 {
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body ng-app="UserData">
+    <div ng-controller="UserDataController">
+
+    </div>
+    <h1>Hi to scrape</h1>
+    <table>
+        <thead>
+            <tr>
+                <td>
+                    Data URL
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="u in userurl">
+                <td>{{u.savedData.dataUrl}}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

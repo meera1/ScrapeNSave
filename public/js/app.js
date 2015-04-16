@@ -10,49 +10,49 @@ function ($routeProvider) {
     $routeProvider.
       when('/done', {
 
-          templateUrl: 'views/user/user1.html',
+          templateUrl: 'user/user1.html',
           controller: 'UserController'
       }).
     when('/main', {
-        templateUrl: 'views/main/main.html',
+        templateUrl: 'main/main.html',
         controller: 'ScrapingController'
     }).
     when('/userdata', {
-        templateUrl: 'views/user/userdata.html',
+        templateUrl: 'user/userdata.html',
         controller: 'UserDataController',
         resolve: {
             loggedin: checkLoggedIn,
         }
     }).
     when('/clearall', {
-        templateUrl: 'views/clear/clearall.html',
+        templateUrl: 'clear/clearall.html',
         controller: 'ClearController'
     }).
     when('/home', {
-        templateUrl: 'views/home/home.html',
+        templateUrl: 'home/home.html',
         //controller:
     }).
      when('/profile', {
-         templateUrl: 'views/user/profile.html',
+         templateUrl: 'user/profile.html',
          controller: 'ProfileController',
          resolve: {
              loggedin : checkLoggedIn,
          }
      }).
      when('/', {
-         templateUrl: 'views/main/main.html',
+         templateUrl: 'main/main.html',
          controller: 'ScrapingController'
      }).
     when('/login', {
-        templateUrl: 'views/login/login.html',
+        templateUrl: 'login/login.html',
         controller: 'ScrapingController'
     }).
     when('/register', {
-        templateUrl: 'views/register/register.html',
+        templateUrl: 'register/register.html',
         controller: 'RegisterController'
     }).
     when('/logout', {
-        templateUrl: 'views/home/home.html',
+        templateUrl: 'home/home.html',
         controller: 'NavController'
     });
         /* .
@@ -453,6 +453,7 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
         .error(function (res) {
             console.log('Error: ' + res);
             $window.alert("Please Login First");
+            $location.url('/login');
         });
     };
 
