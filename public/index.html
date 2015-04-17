@@ -23,7 +23,7 @@
                <!--<button type="button" class="btn btn-primary btn-lg pull-right" data-toggle="modal" data-target="#exampleModal">
                     Login
                 </button> -->
-
+                <p><span>Hello {{name}}</span></p>
                 
 
             </div>
@@ -33,12 +33,12 @@
 
             <!--passport starts here-->
 
-            <ul class="nav nav-justified navbar-inverse btn-lg mynav" ng-controller="NavController">
+            <ul class="nav nav-justified navbar-inverse btn-lg mynav" ng-controller="ScrapingController">
                 <li role="presentation" class="active"><a href="#home">Home</a></li>
                 <li role="presentation" id="loginId"><a href="#login">Login</a></li>
                 <li role="presentation" id="registerId"><a href="#register" ng-click="register(user)">Register</a></li>
                 <li role="presentation"><a href="#profile">Profile</a></li>
-                <li role="presentation"><a href="#logout" ng-click="logout()">Logout</a></li>
+                <li role="presentation" id="logoutId"><a href="#logout" ng-click="logout()">Logout</a></li>
                 
             </ul>
 

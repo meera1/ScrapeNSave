@@ -4,7 +4,10 @@ var app = express();
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var mongoose = require('mongoose');
-var db = mongoose.connect('mongodb://localhost/practice1');
+//var db = mongoose.connect('mongodb://localhost/practice1');
+
+var connectionString = process.env.OPENSHIFT_MONGODB_DB_URL || 'mongodb://localhost/practice1';
+mongoose.connect(connectionString);
 // db.UserSchema.drop
 
 
@@ -38,7 +41,14 @@ app.use(passport.session()); // U NEED TO CONFIGURE PASSPORT'S SESSION AFTER U C
 
 app.use(express.static(__dirname + '/public'));
 
-//-------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+//--------------------To Store the user details ----------------------------------------------------------------//
 
 var UserSchema = new mongoose.Schema({
     username: String,
@@ -51,6 +61,47 @@ var UserSchema = new mongoose.Schema({
 
 
 var UserModel = mongoose.model("UserModel", UserSchema);
+
+
+
+
+
+
+
+//--------------------To Store the user and his/her scrapped URL's ----------------------------------------------------------------//
+
+
+
+var UserScrapeData = new mongoose.Schema({
+    username : String,
+    listofurls: [{ urlname: String, url: String }],
+}, { collection: "UserScrapeDataModel"});
+
+
+var UserScrapeDataModel = mongoose.model("UserScrapeDataModel", UserScrapeData);
+
+
+
+
+//--------------------To Store all the URL's and its data ----------------------------------------------------------------//
+
+
+var UserUrlData = new mongoose.Schema({
+
+    username: String,
+    urlname: String,
+    url: String,
+    urldatainfo:
+                [{
+                actualdata: String,
+                tagtype: String,
+                tagindex: Number,
+                visibility: String}]
+
+}, { collection: "UserUrlDataModel" });
+
+
+var UserUrlDataModel = mongoose.model("UserUrlDataModel", UserUrlData);
 
 
 //var alice = new usermodel({
@@ -70,19 +121,8 @@ var UserModel = mongoose.model("UserModel", UserSchema);
 
 
 
+   var name; // name given by the user to that url
 
-var name; // name given by the user to that url
-
-
-
-
-var users =
-    [{ username: 'alice', password: 'alice', firstName: 'Alice', lastName: 'Wonderland', roles: ['admin', 'teacher'] },
-    { username: 'charlie', password: 'charlie', firstName: 'Charlie', lastName: 'Wonderland', roles: ['teacher'] },
-    { username: 'meera', password: 'meera', firstName: 'Meera', lastName: 'Udani', roles: ['student'] }
-
-
-    ];
 
 
 //------------------------------------------------------
@@ -109,6 +149,40 @@ app.get('/loggedin', function (req, res) {
 });
 
 
+
+app.post('/checkname', function (req, res) {
+
+
+    //console.log(req.body.username);
+    var urlname = req.body.urlname;
+    var username = req.body.username;
+    console.log("server urlname check and user   " + urlname +"   " + username);
+   
+    UserScrapeDataModel.findOne({ username: username, listofurls: {urlname: urlname} }, function (err, user) {
+        if (user) {
+            
+            res.send("1");
+            //return done(null, false, { message: 'User already exists' });
+
+
+        }
+        else {
+
+            
+            res.send("0");
+            //res.send(user);
+            //return done(null, user);
+        }
+
+
+    });
+
+});
+
+
+
+
+//------
 
 app.post('/check', function (req, res) {
 
@@ -208,37 +282,48 @@ app.post('/api/scrap', function (req, res) {
             $(choice).each(function () {
 
                 var data = $(this).text();
+                data = data.trim();
+                if (data.length != 0)
+                {
+                    //console.log(data);
+                    var jsonData = {
 
-                //console.log(data);
-                var jsonData = {
-
-                    dataUrl: link,
-                    tagData: data
-                };
+                        dataUrl: link,
+                        tagData: data,
+                        index: parsedResults.length
+                    };
 
 
 
-                parsedResults.push(jsonData);
+                    parsedResults.push(jsonData);
+
+
+                }
+
+                
             });
         }
-        else {
-
-            $('p', 'div').each(function () {
-
-                var data = $(this).text();
-
-                //console.log(data);
-                var jsonData = {
-
-                    dataUrl: link,
-                    tagData: data
-                };
 
 
+        //else {
 
-                parsedResults.push(jsonData);
-            });
-        }
+        //    $('p', 'div').each(function () {
+
+        //        var data = $(this).text();
+
+        //        //console.log(data);
+        //        var jsonData = {
+
+        //            dataUrl: link,
+        //            tagData: data,
+        //            index: 
+        //        };
+
+
+
+        //        parsedResults.push(jsonData);
+        //    });
+        //}
 
         res.send(parsedResults);
 
@@ -253,22 +338,112 @@ var likedData = [];  // user's saved data for that URL
 
 
 
-var UserDataSchema = new mongoose.Schema({
-    userName: String,
-    savedData: Array
+//var UserDataSchema = new mongoose.Schema({
+//    userName: String,
+//    savedData: Array
 
-}, { collection: "UserData" });
+//}, { collection: "UserData" });
 
 
-var UserData = mongoose.model("UserData", UserDataSchema);
+//var UserData = mongoose.model("UserData", UserDataSchema);
+
+
+//app.post('/api/save', auth, function (req, res) {
+//    //console.log(req.body.d);
+
+//    var d1 = new UserData({ userName: 'Meera', savedData: req.body.d });
+//    d1.save(function () {
+//        UserData.find(function (err, docs) {
+//            if (err != null)
+//            { res.send('/failure'); }
+//            else
+//            {
+//                console.log('saved');
+//                res.send('/done');
+//            }
+
+//        });
+
+//    });
+
+
+//});
+
+
+
+
+//------------try in new schema------------------
+
 
 
 app.post('/api/save', auth, function (req, res) {
-    //console.log(req.body.d);
 
-    var d1 = new UserData({ userName: 'Meera', savedData: req.body.d });
+
+    /*
+
+    for (var j = 0 ; j < req.body.d.length; j++) {
+        console.log("tag data       " + req.body.d[j].tagData);
+        console.log("index    "+ req.body.d[j].index);
+    }
+    //console.log("Dataum url array in server     " + req.body.d.dataUrl);
+    //console.log("Dataum data array in server     " + req.body.d.tagData);
+
+    console.log("link array in server     " + req.body.url);
+    console.log("link name array in server     " + req.body.urlname);
+    console.log("user name array in server     " + req.body.username);
+
+    //---
+    UserScrapeDataModel.findOne({ username: req.body.username }, function (err, doc) {
+        if (doc) {
+            console.log("found user in new schema  " + user);
+            var c = 0;
+            for (var i = 0; i < doc.listofurls.length; i++){
+                if(doc.listofurls[i].urlname == req.body.urlname)
+                {
+                    c = 1;
+                }
+                //else /// work here and in the for loop to check the url name etc
+            }
+            doc.listofurls.push({urlname: req.body.urlname, url: req.body.url});
+            doc.save( function(error, data){
+                if(error){
+                    //res.json(error);
+                }
+                else{
+                    //res.json(data);  // respond with that user's list username and list of url's 
+                }
+            });
+            //return done(null, false, { message: 'User already exists' });
+
+
+        }
+        else {
+            var da = new UserScrapeDataModel;
+            da.username = req.body.username;
+            da.listofurls = [{ urlname: req.body.urlname, url: req.body.url }];
+            da.save(function (error, data) {
+                if (error) {
+                    //res.json(error);
+                }
+                else {
+                    //res.json(data);  // respond with that user's list username and list of url's 
+                }
+            });
+            //console.log(" user not found");
+            //console.log("when user is not found   " + user);
+            //res.send("0");  // user is not found 
+            //res.send(user);
+            //return done(null, user);
+        }
+
+
+    });
+
+    //---
+     
+  /*  var d1 = new UserScrapeData({ use, savedData: req.body.d });
     d1.save(function () {
-        UserData.find(function (err, docs) {
+        UserScrapeData.find(function (err, docs) {
             if (err != null)
             { res.send('/failure'); }
             else
@@ -281,9 +456,17 @@ app.post('/api/save', auth, function (req, res) {
 
     });
 
+    // */
 
+
+    //--------------------------------------------
 });
 
+    // just commented 
+
+
+
+//--------------try end--------------------------
 
 
 passport.use(new LocalStrategy(

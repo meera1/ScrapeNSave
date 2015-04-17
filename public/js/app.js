@@ -29,7 +29,7 @@ function ($routeProvider) {
         controller: 'ClearController'
     }).
     when('/home', {
-        templateUrl: 'home/home.html',
+        templateUrl: '/home/home.html',
         //controller:
     }).
      when('/profile', {
@@ -52,8 +52,8 @@ function ($routeProvider) {
         controller: 'RegisterController'
     }).
     when('/logout', {
-        templateUrl: 'home/home.html',
-        controller: 'NavController'
+        templateUrl: '/home/home.html',
+        controller: 'ScrapingController'
     });
         /* .
     otherwise({
@@ -92,14 +92,15 @@ var checkLoggedIn = function ($q, $timeout, $http, $location, $rootScope, $windo
             $rootScope.currentUser = user;
             deferred.resolve();
             $('#loginId').hide();
-            $('#registerId').hide(); 
+            $('#registerId').hide();
+            //$scope.name = $rootScope.currentUser.username;
         }
         // User is not authenticated
         else {
             $rootScope.errorMessage = 'You Need To Log In Please';
             deferred.reject();
             $location.url('/login');
-
+            $('#myname').hide();
         }
 
     });
@@ -245,7 +246,8 @@ app.controller("ProfileController", function ($scope, $http, $location) {
     // $location.path("/clearall");
     $scope.askToScrape = function () {
         $location.path("/main");
-
+        $('#loginId').hide();
+        $('#registerId').hide();
     };
 
 
@@ -272,35 +274,6 @@ app.controller("ProfileController", function ($scope, $http, $location) {
 
 
 
-
-
-//----------------------------------------------------------------------------------------------/// NavController Start----------------------
-
-
-
-app.controller("NavController", function ($scope, $http, $location) {
-
-    // $location.path("/clearall");
-    $scope.logout = function(){
-        
-        $http.post('/logout')
-        .success(function () {
-            $location.url("/home");
-
-        });
-
-    };
-
-
-    
-
-
-});
-
-
-
-
-//----------------------------------------------------------------------------------------------/// NavController End----------------------
 
 
 
@@ -389,11 +362,13 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 //----------------------------------------------------------------------------
 
     $scope.urlSubmit = function (url) {
+        
         //var link1 = $scope.link1;
         console.log("i m here " + $scope.url.linkName);
         console.log("from app the link name and it's url   " + $scope.url.linkName + "  " + $scope.url.link1);
         console.log("choice of user  " + $scope.url.choice);
         var ch = $scope.url.choice;
+
         $http.post("/api/scrap", { link: $scope.url.link1, name: $scope.url.linkName, choice: $scope.url.choice})
         .success(function (res) {
             $scope.scrap = res;
@@ -412,6 +387,11 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 
     $scope.addData = function (s) {
         $scope.datum.push(s);
+
+        console.log("datum in angular   " + s.dataUrl);
+        console.log("datum in angular   " + s.tagData);
+
+        console.log("data frm frnt end  " + s);
 
         /*
          $http.post("/api/data", {surl: s.dataUrl , sdata: s.tagData })
@@ -433,6 +413,9 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 
 
     $scope.removeData = function (d) {
+        //console.log("datum in angular  rmonw " + d.dataUrl);
+        //console.log("datum in angular remove  " + d.tagData);
+
         var index = $scope.datum.indexOf(d);
         $scope.datum.splice(index, 1);
     };
@@ -440,21 +423,79 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 //----------------------------------------------------------------------------
 
     $scope.savePicks = function () {
-        $http.post("/api/save", { d: $scope.datum })
-        .success(function (res) {
-            console.log(res);
+        
+        console.log("Datum data  " + $scope.datum);
 
-            // $location.path("/error");
-            $location.path(res);
-            //$scope.$apply();
+        $http.get('/loggedin').success(function (user) {
+
+            $rootScope.errorMessage = null; // User is Authenticated
+
+            if (user != '0') {
+
+                $http.post('/checkname', //{
+                        //    username: user.username,
+                        //    password: user.password,
+                        //    first: user.first,
+                        //    last: user.last,
+                        //    email: user.email
+                        //}
+                    { urlname: $scope.url.linkname, username: $rootScope.currentUser.username })
+                        .success(function (res) {
+                            if (res == "1") {
+                                //user exists
+                                window.alert("URL name not unique, please enter another one");
+
+                            }
+                            else if (res == "0") {
+                                $http.post("/api/save", { d: $scope.datum, url: $scope.url.link1, urlname: $scope.url.linkname, username: $rootScope.currentUser.username })
+                                            .success(function (res) {
+                                                console.log(res);
+
+                                                // $location.path("/error");
+                                                $location.path(res);
+                                                //$scope.$apply();
+
+                                            })
+
+                                            .error(function (res) {
+                                                console.log('Error: ' + res);
+                                                $window.alert("Could not save, try again");
+                                                $location.url('/main');
+                                            });
+
+                            }
+                        })
+                            .error(function (res) {
+
+                                console.log('Error: ' + res);
+
+                            });
+
+
+
+
+
+
+
+            }
+
+            else {
+                $rootScope.errorMessage = 'You Need To Log In Please';
+                deferred.reject();
+                $location.url('/login');
+                //$('#myname').hide();
+            }
+
+
 
         })
-
         .error(function (res) {
-            console.log('Error: ' + res);
-            $window.alert("Please Login First");
-            $location.url('/login');
+
+            console.log('Error:' + res);
         });
+    
+
+        
     };
 
 
@@ -473,6 +514,7 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 
             $http.post('/login', user)
         .success(function (user) {
+            $("#loginId").hide();
             console.log(user);  /// ask the entire user object to display in the user profile 
             $rootScope.currentUser = user;
             //$('#exampleModal').modal('hide');
@@ -494,9 +536,80 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 
 
 
+
+        // $location.path("/clearall");
+        $scope.logout = function () {
+
+            $http.post('/logout')
+            .success(function () {
+                $('#loginId').show();
+                $('#registerId').show();
+                $location.url("/home");
+
+            });
+
+        };
+
+
+//----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 });
 
+//--------------------Pagination----------------------
 
+
+//app.filter('offset', function () {
+//    return function (input, start) {
+//        start = parseInt(start, 10);
+//        return input.slice(start);
+//    };
+//});
+
+
+//$scope.itemsPerPage = 5;
+//$scope.currentPage = 0;
+//$scope.items = [];
+
+//for (var i = 0; i < 50; i++) {
+//    $scope.items.push({
+//        id: i, name: "name " + i, description: "description " + i
+//    });
+//}
+
+//$scope.prevPage = function () {
+//    if ($scope.currentPage > 0) {
+//        $scope.currentPage--;
+//    }
+//};
+
+//$scope.prevPageDisabled = function () {
+//    return $scope.currentPage === 0 ? "disabled" : "";
+//};
+
+//$scope.pageCount = function () {
+//    return Math.ceil($scope.items.length / $scope.itemsPerPage) - 1;
+//};
+
+//$scope.nextPage = function () {
+//    if ($scope.currentPage < $scope.pageCount()) {
+//        $scope.currentPage++;
+//    }
+//};
+
+//$scope.nextPageDisabled = function () {
+//    return $scope.currentPage === $scope.pageCount() ? "disabled" : "";
+//};
+
+
+
+//----------------------------------------------------
 
 
 
