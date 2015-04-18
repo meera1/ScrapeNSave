@@ -424,14 +424,16 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 
     $scope.savePicks = function () {
         
-        console.log("Datum data  " + $scope.datum);
+        console.log("Datum data  the user wants to save      " + $scope.datum);
 
         $http.get('/loggedin').success(function (user) {
+            console.log("in savepicks....loggedin success");
 
             $rootScope.errorMessage = null; // User is Authenticated
 
             if (user != '0') {
 
+                console.log("in savepicks....loggedin success...user authenticated...res != 0");
                 $http.post('/checkname', //{
                         //    username: user.username,
                         //    password: user.password,
@@ -441,14 +443,18 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
                         //}
                     { urlname: $scope.url.linkname, username: $rootScope.currentUser.username })
                         .success(function (res) {
+                            console.log("in savepicks....loggedin success...in /checkname success");
                             if (res == "1") {
+                                console.log("in savepicks....loggedin success...in /checkname success   res = 1");
                                 //user exists
                                 window.alert("URL name not unique, please enter another one");
 
                             }
                             else if (res == "0") {
-                                $http.post("/api/save", { d: $scope.datum, url: $scope.url.link1, urlname: $scope.url.linkname, username: $rootScope.currentUser.username })
+                                console.log("in savepicks....loggedin success...in /checkname success   res = 0");
+                                $http.post("/api/save", { d: $scope.datum, actualurl: $scope.url.link1, urlname: $scope.url.linkname, username: $rootScope.currentUser.username })
                                             .success(function (res) {
+                                                console.log("in savepicks....loggedin success...in /checkname success...savepicks success");
                                                 console.log(res);
 
                                                 // $location.path("/error");
@@ -458,6 +464,7 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
                                             })
 
                                             .error(function (res) {
+                                                console.log("in savepicks....loggedin success...in /checkname success...savepicks error");
                                                 console.log('Error: ' + res);
                                                 $window.alert("Could not save, try again");
                                                 $location.url('/main');
@@ -466,7 +473,7 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
                             }
                         })
                             .error(function (res) {
-
+                                console.log("in savepicks....loggedin success...in /checkname error");
                                 console.log('Error: ' + res);
 
                             });
@@ -480,8 +487,8 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
             }
 
             else {
+                console.log("in savepicks....loggedin success...user authenticated...res = 0");
                 $rootScope.errorMessage = 'You Need To Log In Please';
-                deferred.reject();
                 $location.url('/login');
                 //$('#myname').hide();
             }
@@ -490,7 +497,7 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
 
         })
         .error(function (res) {
-
+            console.log("in savepicks....loggedin error");
             console.log('Error:' + res);
         });
     
