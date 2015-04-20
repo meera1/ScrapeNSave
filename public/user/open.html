@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <div>
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>
+                        Data
+                    </th>
+                    <th>
+                        Action
+                    </th>
+                </tr>
+
+            </thead>
+            <tbody>
+                <tr ng-repeat="o in opendata.urldata">
+                    <td>
+                        {{o.actualdata}}
+                    </td>
+                    <td>
+                        <span class="label label-warning" id="visibleOfData">{{o.visibility}}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary " ng-click="shareData(opendata.urlname, o.actualdata)" data-toggle="tooltip" data-placement="right" title="Click to toggle visibility">
+                           
+                                 <span class="glyphicon glyphicon-flash">
+                            </span>
+
+                        </button>
+                   </td>
+
+  
+                    <!--<td ng-switch="o.visibility">
+                        
+                    </td>-->
+                </tr>
+            </tbody>
+        </table>
+        
+    </div>
+    
+</body>
+</html>

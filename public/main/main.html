@@ -45,7 +45,7 @@
                     
                 </th>
                 <th>
-                    <input id="link1" type="url" class="form-control link1 btn-lg" placeholder="Search for..." ng-model=" url.link1">
+                    <input id="link1" type="url" class="form-control link1 btn-lg" placeholder="http://www.google.com" ng-model=" url.link1">
                 </th>
                 <th>
                     <select ng-model="url.choice" required class="form-control btn-lg ">
@@ -71,9 +71,7 @@
 
         </thead>
         <tbody>
-            <tr ng-repeat="s in scrap"> <!--| offset: currentpage*itemsperpage |
-                limitto: itemsperpage-->
-                <!--To add the particular para of the scraped data in the db-->
+            <tr ng-repeat="s in scrap">
                 <td colspan="3" width="98%">
                     <p class="mypara">{{s.tagData}}</p>
                 </td>

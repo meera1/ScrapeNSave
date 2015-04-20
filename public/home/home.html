@@ -2,8 +2,49 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Home</title>
+    <style>
+        h1{ 
+            text-align:center;
+        }
+        .a1{
+            color: #66ffff;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hiiiiii home</h1>
+    <div ng-controller="HomeController">
+       
+        <h1>Look Who Shared What!!!</h1>
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>
+                        Data
+                    </th>
+                    <th>
+                        Username
+                    </th>
+                    
+                </tr>
+
+            </thead>
+            <tbody>
+                <tr ng-repeat="s in wallresults">
+
+                    <td>
+                        {{s.walldata}}
+                    </td>
+                    <td>
+                        <a class="a1" ng-click="showUser(s.username)">{{s.username}}</a>
+                    </td>
+
+
+                </tr>
+            </tbody>
+        </table>
+
+
+    </div>
 </body>
 </html>

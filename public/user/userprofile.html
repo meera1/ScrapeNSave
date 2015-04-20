@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+        .myjumbo{
+            background-color: rgba(0, 0, 0,0.5);
+            color:#ffb80a;
+           
+        }
+      
+    </style>
+</head>
+<body>
+    <div ng-controller="HomeController">
+        <div class="jumbotron myjumbo">
+            <span class="label label-warning" id="visibleOfData">{{followStatus}}</span>
+            
+           
+                <button class="btn btn-primary pull-right btn-lg" ng-click="follow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Follow/Unfollow">
+
+                    <span class="glyphicon glyphicon-flash">
+                    </span>
+
+                </button>
+           
+
+            <h1>{{userProfile.first}} {{userProfile.last}}</h1>
+
+            <!--
+                            <button class="btn btn-primary pull-right btn-lg" ng-click="follow(userProfile.username)">Follow</button>-->
+
+        </div>
+
+        <div>
+            <table class="table table-responsive">
+                <thead>
+                    <tr ng-show="userProfile.wallresult.length > 0">
+                        <th>
+                            <h2> Shared Data: </h2>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="w in userProfile.wallresult">
+                        <td>
+                            {{w.walldata}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        
+
+        
+    </div>
+</body>
+</html>

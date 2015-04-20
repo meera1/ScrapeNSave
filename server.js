@@ -55,7 +55,9 @@ var UserSchema = new mongoose.Schema({
     password: String,
     first: String,
     last: String,
-    email: String
+    email: String,
+    follows: [String],
+    followedBy: [String]
 
 }, { collection: "UserModel" });
 
@@ -91,12 +93,13 @@ var UserUrlData = new mongoose.Schema({
     username: String,
     urlname: String,
     actualurl: String,
-    urldatainfo:
+    tagtype: String,
+    urldata:
                 [{
                 actualdata: String,
-                tagtype: String,
-                tagindex: Number,
-                visibility: String}]
+                index: Number,
+                visibility: { type: String, default: 'Private' }
+                }]
 
 }, { collection: "UserUrlDataModel" });
 
@@ -150,6 +153,381 @@ app.get('/loggedin', function (req, res) {
 
 
 
+
+app.post('/loadurls', auth, function (req, res) {
+    //console.log('hi there  ' + req.body.username);
+    UserScrapeDataModel.findOne({ username: req.body.username }, function (err, user) {
+        if (user) {
+            //console.log("user found     " + user);
+            console.log("Error query  " + err);
+
+            res.send(user.listofurls);
+            //return done(null, false, { message: 'User already exists' });
+        }
+        else {
+
+            res.send("0");
+            //res.send(user);
+            //return done(null, user);
+        }
+
+
+    });
+
+});
+
+
+
+//--------------------------------------------------------------------------------------------------------------
+
+
+app.post('/follow', auth, function (req, res) {
+
+    console.log("User in follow server *********************"+req.body.username1);
+    UserModel.findOne({ username: req.body.username1 }, function (error, doc) {
+
+        if(doc)
+        {
+            console.log("Got user:  " + doc);
+            doc.followedBy.push(req.body.current);
+            doc.save();
+
+
+            UserModel.findOne({ username: req.body.current }, function (error1, doc1) {
+
+                if(doc1)
+                {
+                    console.log("Got current user   " + doc1);
+                    doc1.follows.push(req.body.username1);
+                    doc1.save();
+                    res.send("Unfollow");
+                }
+                else
+                {
+                    console.log("Did not get  current user:  " + error1);
+                }
+
+
+            });
+
+
+
+
+        }
+        else
+        {
+            console.log("Did not get user:  " + error);
+        }
+
+    });
+
+});
+
+
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------------------
+
+app.post('/showuser', function (req, res) {
+
+    console.log("*************************************************** in show user");
+    var wallresults = [];
+    UserModel.findOne({ username: req.body.username }, function (err, user) {
+        if (user) {
+           
+            UserUrlDataModel.find({ username: req.body.username}, function (error, docs) {
+
+
+                if (docs) {
+
+                    for (j = 0; j < docs.length; j++) {
+
+                        for (i = 0 ; i < docs[j].urldata.length; i++) {
+
+                            if (docs[j].urldata[i].visibility == "Public") {
+
+                                console.log("Match Found..!!!");
+
+                                var myresult = {
+
+
+                                   
+                                    walldata: docs[j].urldata[i].actualdata,
+
+
+                                };
+
+                                wallresults.push(myresult);
+
+                            }
+
+                        }
+
+
+                    }
+
+                    var userProfile = {
+
+                        first: user.first,
+                        last: user.last,
+                        wallresult: wallresults,
+                        username: user.username
+                    };
+
+                    res.send(userProfile);
+
+                }
+                else {
+                    console.log("Error in showing userprofile data:" + error);
+                    console.log("***********************************************************************************");
+
+                }
+
+
+            });
+
+        }
+        else {
+
+            
+            console.log("Error in fetching user data:" + error);
+            console.log("***********************************************************************************");
+
+        }
+
+
+    });
+
+});
+
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------------------
+
+app.get('/sharedData', function (req, res) {
+
+    wallresults = [];
+    //console.log("in server shared");
+    UserUrlDataModel.find(function (error, docs) {
+        if (docs) {
+
+            for (j = 0; j < docs.length; j++) {
+
+                for (i = 0 ; i < docs[j].urldata.length; i++) {
+
+                    if (docs[j].urldata[i].visibility == "Public") {
+
+                        var myresult = {
+
+                            username: docs[j].username,
+                            walldata: docs[j].urldata[i].actualdata,
+                            
+
+                        };
+
+                        wallresults.push(myresult);
+
+                    }
+
+                }
+
+
+            }
+
+            
+            res.send(wallresults);
+           
+        }
+        else {
+            console.log("Error form sharing data in UserUrlDataModel:" + error);
+            console.log("***********************************************************************************");
+
+        }
+
+
+    });
+
+
+});
+
+
+
+
+//--------------------------------------------------------------------------------------------------------------
+
+
+
+app.post('/share', function (req, res) {
+
+    console.log(req.body.username + "-------------------------------------------------------  " + req.body.urlname);
+
+    UserUrlDataModel.findOne({ username: req.body.username, urlname: req.body.urlname }, function (error, doc) {
+
+
+        if (doc) {
+
+            for (var i = 0; i < doc.urldata.length; i++) {
+
+                if(doc.urldata[i].actualdata == req.body.actualdata)
+                {
+                    console.log("Match found--------------------------------");
+                    console.log("visi   " + doc.urldata[i].visibility);
+                    if (doc.urldata[i].visibility == 'Private')
+                    {
+
+                        console.log("setting visbility to public");
+                        doc.urldata[i].visibility = 'Public';
+                        
+                    }
+                    else
+                    {
+                        doc.urldata[i].visibility = 'Private';
+                       
+                    }
+                }
+            }
+            doc.save();
+
+            //console.log("Match found");
+            res.json(doc);
+
+        }
+        else {
+
+            console.log("Error form changing the visibility in sharing data UserUrlDataModel:" + error);
+            console.log("***********************************************************************************");
+
+
+        }
+
+
+    });
+
+});
+
+
+app.post('/opendata', function (req, res) {
+
+    console.log(req.body.username + "  " + req.body.urlname);
+
+    UserUrlDataModel.findOne({ username: req.body.username, urlname: req.body.urlname }, function (error, doc) {
+
+
+        if (doc) {
+
+
+            //console.log("Match found");
+            res.json(doc);
+
+        }
+        else {
+
+            console.log("Error form updatin the urlname the user wants data in UserUrlDataModel:" + error);
+            console.log("***********************************************************************************");
+
+
+        }
+
+
+    });
+
+});
+
+
+
+app.post('/updateData', function (req, res) {
+
+    console.log("Username in sever  " + req.body.username);
+    console.log("urlname in sever  " + req.body.urlname);
+    console.log("actualurl in sever  " + req.body.actualurl);
+    console.log("old in sever  " + req.body.urlnameOld);
+
+
+    
+
+
+   
+
+    UserScrapeDataModel.findOne({ username: req.body.username }, function (error, user)
+
+    {
+
+        console.log("i m here");
+
+        if (user) {
+
+            console.log("---------------------------------------------- user found"+user);
+          //  console.log(user);
+            for (var i = 0; i < user.listofurls.length; i++)
+            {
+                console.log(user.listofurls[i].urlname);
+                if(user.listofurls[i].urlname == req.body.urlnameOld)
+                {
+
+                    
+                    user.listofurls[i].urlname = req.body.urlname;
+
+                }
+            }
+            user.save();
+
+
+            UserUrlDataModel.findOne({ username: req.body.username, urlname: req.body.urlnameOld }, function (error, doc) {
+
+
+                if (doc) {
+
+
+                    console.log("Match found");
+                    doc.urlname = req.body.urlname;
+
+                    doc.save();
+
+                }
+                else {
+
+                    console.log("Error form updatin the urlname the user wants data in UserUrlDataModel:" + error);
+                    console.log("***********************************************************************************");
+
+
+                }
+                
+
+            });
+
+            
+
+
+            res.send(user.listofurls);
+
+        }
+        else {
+            console.log("Error form updatin the urlname the user wants data in UserScrapeDataModel:" + error);
+            console.log("------------------------------------------------------,.--------nooooo");
+
+        }
+
+    });
+
+
+
+});
+
+
+
+
 app.post('/checkname', function (req, res) {
 
 
@@ -169,7 +547,7 @@ app.post('/checkname', function (req, res) {
             }
         else {
 
-            console.log
+            
             res.send("0");
             //res.send(user);
             //return done(null, user);
@@ -291,7 +669,8 @@ app.post('/api/scrap', function (req, res) {
 
                         dataUrl: link,
                         tagData: data,
-                        index: parsedResults.length
+                        index: parsedResults.length,
+                        tagtype: choice
                     };
 
 
@@ -384,9 +763,9 @@ app.post('/api/save', auth, function (req, res) {
     console.log("url link name     "+ req.body.urlname);
     console.log("user   "+ req.body.username);
    
+    var savedata = 0;
 
-
-
+    console.log("*******************************   " + savedata + "******************");
     
 
     for (var j = 0 ; j < req.body.d.length; j++) {
@@ -395,18 +774,25 @@ app.post('/api/save', auth, function (req, res) {
     
         console.log("Dataum url array in server     " + req.body.d[j].dataUrl);
         console.log("Dataum data array in server     " + req.body.d[j].tagData);
+        console.log("Dataum index array in server     " + req.body.d[j].index);
+        console.log("Dataum tagtype array in server     " + req.body.d[j].tagtype);
+        console.log("--------------------------------------------------------------");
 
     }
 
     UserScrapeDataModel.findOne({ username: req.body.username }, function (err, doc) {
         if (doc) {
             console.log("found user in new schema  " + doc);
+            console.log("--------------------------------------------------------------");
+
             var c = 0;
             for (var i = 0; i < doc.listofurls.length; i++){
-                if (doc.listofurls[i].actualurl == req.body.actualurl)
+                if (doc.listofurls[i].urlname == req.body.urlname)
                 {
                     console.log("found the url also");
-                    
+                    console.log("--------------------------------------------------------------");
+
+                    //savedata = 1;
                     c = 1;
                 }
                 //else /// work here and in the for loop to check the url name etc
@@ -414,13 +800,15 @@ app.post('/api/save', auth, function (req, res) {
 
             if(c == 0)  // if c = 1...user found with that url so don't push new enter... and do not update the list of urls
             {
+               // savedata = 1;
                 console.log("did not find the url");
+                console.log("--------------------------------------------------------------");
+
               //  var da = new UserScrapeDataModel;
                 //da.username = req.body.username;
                // da.update({ username: doc.username }, { $push: { listofurls: { $each: [{ urlname: req.body.urlname, actualurl: req.body.actualurl }] } } }, function (error, doc) {
 
 
-                    // Deepen Mehta
 
                 var item = {
                         urlname: req.body.urlname,
@@ -438,13 +826,76 @@ app.post('/api/save', auth, function (req, res) {
 
 
                     if (error) {
-                        console.log("Error form inserting data :" + error);
-                        res.send('/failure');
+                        console.log("Error form inserting data in UserScrapeDataModel:" + error);
+                        console.log("--------------------------------------------------------------");
+
+                        //res.send('/failure');
                     }
                     else {
-                        console.log("done updating");
+                        console.log("Done updating UserScrapeDataModel");
+                        savedata = 1;
                         console.log("doc returned after updating   " + doc);
-                        res.send('/done'); // respond with that user's list username and list of url's 
+                        console.log("--------------------------------------------------------------");
+
+
+
+
+
+                        var urldataarray = [];
+                        console.log("*******************************   " + savedata + "******************");
+                        if (savedata == 1) {
+                            var d1 = new UserUrlDataModel;
+                            d1.username = req.body.username;
+                            d1.urlname = req.body.urlname;
+                            d1.actualurl = req.body.actualurl;
+                            if (d1.length = 0)
+                            {
+                                d1.tagtype = null;
+                            }
+                            else if(d1.length >= 1){
+                                d1.tagtype = req.body.d[1].tagtype;
+                            }
+                            
+
+                            for (var j = 0 ; j < req.body.d.length; j++) {
+                                var urldataitem =
+                                    {
+                                        actualdata: req.body.d[j].tagData,
+                                        index: req.body.d[j].index,
+                                        visibility: 'Private'
+                                    };
+                                console.log("item   " + urldataitem);
+                                urldataarray.push(urldataitem);
+                                console.log("array   "+ urldataarray);
+                            }
+
+                            d1.urldata = urldataarray;
+                            d1.save(function (error, data) {
+                                if (error) {
+                                    console.log("--------------------------------------------------------------");
+                                    console.log("Error form saving new data entry for user url info in UserUrlDataModel savedata = 1 :" + error);
+                                    res.send('/failure');
+                                }
+                                else {
+                                    console.log("--------------------------------------------------------------");
+                                    console.log("saved entry for user url info in UserUrlDataModel savedata = 1");
+                                    res.send('/done');
+                                }
+                            });
+
+
+                        }
+                        else {
+
+                            console.log("--------------------------------------------------------------");
+                            console.log("Error form saving new data entry for user url info in UserUrlDataModel due to savedata is 0 :");
+                            res.send('/failure');
+                        }
+
+
+
+
+                        //res.send('/done'); // respond with that user's list username and list of url's 
                     }
 
                 });
@@ -454,8 +905,10 @@ app.post('/api/save', auth, function (req, res) {
 
             }
             else {
-                console.log("found the url for that user");
-                res.send('/done');
+                console.log("found the url for that user in UserScrapeDataModel");
+                console.log("--------------------------------------------------------------");
+
+                //res.send('/done');
             }
             
 
@@ -464,17 +917,88 @@ app.post('/api/save', auth, function (req, res) {
         }
         else {
             console.log("did not find the user");
+            console.log("--------------------------------------------------------------");
+
             var da = new UserScrapeDataModel;
             da.username = req.body.username;
             da.listofurls = [{ urlname: req.body.urlname, actualurl: req.body.actualurl }];
             da.save(function (error, data) {
                 if(error){
                     console.log("Error form creating new data :" + error);
-                    res.send('/failure');
+                    console.log("--------------------------------------------------------------");
+
+                    //res.send('/failure');
                 }
                 else {
-                    console.log("saved new entry for user");
-                     res.send('/done'); // respond with that user's list username and list of url's 
+                    savedata = 1;
+                    console.log("saved new entry for user in UserScrapeDataModel");
+                    console.log("--------------------------------------------------------------");
+
+                    // res.send('/done'); // respond with that user's list username and list of url's 
+
+
+
+
+
+
+
+
+                    var urldataarray = [];
+                    console.log("*******************************   " + savedata + "******************");
+                    if (savedata == 1) {
+                        var d1 = new UserUrlDataModel;
+                        d1.username = req.body.username;
+                        d1.urlname = req.body.urlname;
+                        d1.actualurl = req.body.actualurl;
+                        if (d1.length = 0) {
+                            d1.tagtype = null;
+                        }
+                        else if (d1.length >= 1) {
+                            d1.tagtype = req.body.d[1].tagtype;
+                        }
+
+                        for (var j = 0 ; j < req.body.d.length; j++) {
+                            var urldataitem =
+                                {
+                                    actualdata: req.body.d[j].tagData,
+                                    index: req.body.d[j].index,
+                                    visibility: 'Private'
+                                };
+                            console.log("item   "+ urldataitem);
+                            urldataarray.push(urldataitem);
+                            console.log("array   " + urldataarray);
+
+                        }
+                        d1.urldata = urldataarray;
+                        d1.save(function (error, data) {
+                            if (error) {
+                                console.log("--------------------------------------------------------------");
+                                console.log("Error form saving new data entry for user url info in UserUrlDataModel savedata = 1 :" + error);
+                                res.send('/failure');
+                            }
+                            else {
+                                console.log("--------------------------------------------------------------");
+                                console.log("saved entry for user url info in UserUrlDataModel savedata = 1");
+                                res.send('/done');
+                            }
+                        });
+
+
+                    }
+                    else {
+
+                        console.log("--------------------------------------------------------------");
+                        console.log("Error form saving new data entry for user url info in UserUrlDataModel due to savedata is 0 :");
+                        res.send('/failure');
+                    }
+
+
+
+
+
+
+
+
                 }
             });
             //console.log(" user not found");
@@ -485,7 +1009,36 @@ app.post('/api/save', auth, function (req, res) {
         }
 
 
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
     });
+
+  
+   
+
+
+
+
+
+
+
+
 
 });
 
@@ -617,8 +1170,10 @@ app.post('/api/data', function (req, res) {
 });
 
 
-var ip = process.env.OPENSHIFT_NODEJS_IP || 3000;
-var port = process.env.OPENSHIFT_NODEJS_PORT || '127.0.0.1';
 
+
+
+var ip = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+var port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
 
 app.listen(port, ip);

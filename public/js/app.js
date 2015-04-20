@@ -30,7 +30,7 @@ function ($routeProvider) {
     }).
     when('/home', {
         templateUrl: '/home/home.html',
-        //controller:
+        controller: 'HomeController'
     }).
      when('/profile', {
          templateUrl: 'user/profile.html',
@@ -51,6 +51,14 @@ function ($routeProvider) {
         templateUrl: 'register/register.html',
         controller: 'RegisterController'
     }).
+    when('/open', {
+        templateUrl: 'user/open.html',
+        controller: 'ProfileController'
+    }).
+    when('/usershow', {
+        templateUrl: 'user/userprofile.html',
+        controller: 'HomeController'
+    }).
     when('/logout', {
         templateUrl: '/home/home.html',
         controller: 'ScrapingController'
@@ -59,7 +67,7 @@ function ($routeProvider) {
     otherwise({
         redirectTo: '/clearall'    */
    
-     
+    
       
 
 
@@ -141,6 +149,156 @@ app.controller("ClearController", function ($scope, $http, $location) {
 
 
 //----------------------------------------------------------------------------------------------/// ClearController End----------------------
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+//----------------------------------------------------------------------------------------------/// HomeController Start----------------------
+
+
+
+app.controller("HomeController", function ($scope, $http, $location, $rootScope) {
+
+    //console.log("in home controller");
+
+
+    $scope.showUser = function (username) {
+        $http.post('/showuser', {username : username})
+          .success(function (res) {
+              console.log("in success of show user");
+              //   console.log(res[0].urldata[0]);
+              $rootScope.userProfile = res;
+              $location.url('/usershow');
+
+          })
+          .error(function (res) {
+              console.log("in error of of show use angular");
+              console.log("Error:" + res);
+          });
+
+
+    };
+
+
+
+    $scope.follow = function(user)
+    {
+        console.log(user);
+
+
+        $http.get('/loggedin').success(function (use) {
+            console.log("in follow....loggedin success");
+
+            $rootScope.errorMessage = null; // User is Authenticated
+
+            if (use != '0') 
+            {
+                console.log("authenticated");
+
+                $http.post('/follow', { current: $rootScope.currentUser.username, username1: user })
+                .success(function (res) {
+                    console.log("follow success angular");
+                    $scope.followStatus = res;
+                })
+                .error(function (res) {
+                    console.log("Error:" + res);
+                });
+
+            }
+            else {
+                console.log("in follow....loggedin success...user authenticated...res = 0");
+                $rootScope.errorMessage = 'You Need To Log In Please';
+                $location.url('/login');
+                //$('#myname').hide();
+            }
+
+
+
+        })
+        .error(function (res) {
+            console.log("in follow....loggedin error");
+            console.log('Error:' + res);
+        });
+
+
+
+
+    }
+
+
+
+
+
+
+
+    var init = function () {
+        console.log("in init");
+        $http.get('/sharedData')
+           .success(function (res) {
+               console.log("in success of shared data angular");
+            //   console.log(res[0].urldata[0]);
+               $scope.wallresults = res;
+
+           })
+           .error(function (res) {
+               console.log("in error of shared data angular");
+               console.log("Error:" + res);
+           });
+
+
+    };
+    // and fire it after definition
+    init();
+
+    /*
+    
+    function HomeController($scope) {
+        console.log("in home controller scope function");
+        angular.element(document).ready(function () {
+
+            console.log("in home controller ready function before sending request");
+
+
+            $http.get('/sharedData')
+            .success(function (res) {
+                console.log("in success of shared data angular");
+                $scope.sharedData = res;
+
+            })
+            .error(function (res) {
+                console.log("in error of shared data angular");
+                console.log("Error:" + res);
+            });
+
+
+        });
+    }
+
+
+    */
+
+    
+
+
+});
+
+
+
+
+
+//----------------------------------------------------------------------------------------------/// HomeController End----------------------
+
+
+
+
+
+
 
 
 
@@ -237,12 +395,16 @@ app.controller("RegisterController", function ($scope, $http, $location, $rootSc
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//----------------------------------------------------------------------------------------------/// ProfileController Start----------------------
 
 
 
 
-app.controller("ProfileController", function ($scope, $http, $location) {
+app.controller("ProfileController", function ($scope, $http, $location, $rootScope, $window) {
 
+
+
+  //---------------------------------------------------------------------------------------------------
     // $location.path("/clearall");
     $scope.askToScrape = function () {
         $location.path("/main");
@@ -251,7 +413,127 @@ app.controller("ProfileController", function ($scope, $http, $location) {
     };
 
 
+    //---------------------------------------------------------------------------------------------------
+
+
+    $scope.loadUrl = function () {
+        //$location.path("/userdata");
+        console.log($rootScope.currentUser.username);
+
+
+        $http.post('/loadurls', { username: $rootScope.currentUser.username })
+            .success(function (res) {
+                if (res.length > 0)
+                {
+                    $scope.yourUrls = res;
+                }
+                else
+                {
+                    $scope.conditions = 'No Records Found!!!';
+                }
+                
+            })
+            .error(function (res) {
+
+                console.log("Error from retrieving your url's" + res);
+            });
+    }
+
+
+    //---------------------------------------------------------------------------------------------------
+
+        $scope.editData = function (y) {
+            console.log('in edit    ' + y.urlname);
+            
+            $scope.urlnameOld = y.urlname;
+            $scope.urlname1 = y.urlname;
+            console.log($scope.urlname1 + "     " + $scope.urlnameOld);
+            //$scope.actualurl1 = y.actualurl;
+            //$('myTr').show();
+             
+        };
+
+        
+
+    //---------------------------------------------------------------------------------------------------
+
+
+        $scope.openData = function (y) {
+            console.log('in open    ' + y.urlname);
+            var urlname = y.urlname;
+
+            $http.post('/opendata', { username: $rootScope.currentUser.username, urlname: urlname })
+            .success(function (res) {
+
+                $rootScope.opendata = res;
+                //console.log($scope.opendata.urlname);
+                $location.url('/open');
+            })
+            .error(function (res) {
+
+                console.log("Error  " + res);
+            });
+        };
+
+
+
+    //---------------------------------------------------------------------------------------------------
+
+
+
+
+        $scope.shareData = function (urlname, actualdata) {
+
+
+            console.log("--------------------------------------------------------------------------------------");
+
+            $http.post('/share', { username: $rootScope.currentUser.username, urlname: urlname, actualdata: actualdata })
+            .success(function (res) {
+
+                $window.alert("Done!");
+                $rootScope.opendata = res;
+               
+            })
+            .error(function (res) {
+
+                console.log("Error  " + res);
+            });
+
+        };
+      
+    
+    //---------------------------------------------------------------------------------------------------
+
+
+        $scope.updateData = function (urlnameOld,urlname1) {
+            console.log(urlnameOld);
+            $http.post('/updateData', { urlname: urlname1, urlnameOld: urlnameOld, username: $rootScope.currentUser.username })
+            .success(function (res) {
+                console.log("Success  " + res);
+                $scope.yourUrls = res;
+                $window.alert("Done Updating!");
+            })
+            .error(function (res) {
+
+                console.log("Error  "+res);
+            });
+
+
+        };
+
+    //---------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 });
+
+
+
+
 
 
 
@@ -268,6 +550,14 @@ app.controller("ProfileController", function ($scope, $http, $location) {
 //----------------------------------------------------------------------------------------------/// ProfileController End----------------------
 
 
+////----------------------------------------------------------------------------------------------/// OpenController Start------------------------
+
+
+//app.controller("OpenController", function ($scope, $http, $location, $rootScope) {
+
+//    $scope.opendata = re
+
+//});
 
 
 
@@ -275,8 +565,7 @@ app.controller("ProfileController", function ($scope, $http, $location) {
 
 
 
-
-
+////----------------------------------------------------------------------------------------------/// OpenCOnroller Start------------------------
 
 
 
@@ -285,23 +574,141 @@ app.controller("ProfileController", function ($scope, $http, $location) {
 
 
 
-
-
-
 //----------------------------------------------------------------------------------------------/// UserController Start----------------------
-app.controller("UserController", function ($scope, $http, $location) {            
-    
 
-    
 
+
+app.controller("UserController", function ($scope, $http, $location, $rootScope) {
+
+
+  /////////////////////////////////////////////
+
+
+    $scope.scrapeMore = function () {
+        $location.url("/main");
+    };
 
 
     $scope.loadUrl = function () {
-        $location.path("/userdata");
+        //$location.path("/userdata");
+        console.log($rootScope.currentUser.username);
+
+
+        $http.post('/loadurls', { username: $rootScope.currentUser.username })
+            .success(function (res) {
+                if (res.length > 0) {
+                    $scope.yourUrls = res;
+                }
+                else {
+                    $scope.conditions = 'No Records Found!!!';
+                }
+
+            })
+            .error(function (res) {
+
+                console.log("Error from retrieving your url's" + res);
+            });
+    }
+
+
+    //--------------------------------------------------------------------------------------
+
+
+    $scope.editData = function (y) {
+        console.log('in edit    ' + y.urlname);
+
+        $scope.urlnameOld = y.urlname;
+        $scope.urlname1 = y.urlname;
+        console.log($scope.urlname1 + "     " + $scope.urlnameOld);
+        //$scope.actualurl1 = y.actualurl;
+        //$('myTr').show();
 
     };
 
+
+
+    //---------------------------------------------------------------------------------------------------
+
+
+    $scope.openData = function (y) {
+        console.log('in open    ' + y.urlname);
+        var urlname = y.urlname;
+
+        $http.post('/opendata', { username: $rootScope.currentUser.username, urlname: urlname })
+        .success(function (res) {
+
+            $rootScope.opendata = res;
+            //console.log($scope.opendata.urlname);
+            $location.url('/open');
+        })
+        .error(function (res) {
+
+            console.log("Error  " + res);
+        });
+    };
+
+
+
+    //---------------------------------------------------------------------------------------------------
+
+
+
+
+    $scope.shareData = function (urlname, actualdata) {
+
+
+        console.log("--------------------------------------------------------------------------------------");
+
+        $http.post('/share', { username: $rootScope.currentUser.username, urlname: urlname, actualdata: actualdata })
+        .success(function (res) {
+
+            $window.alert("Done!");
+            $rootScope.opendata = res;
+
+        })
+        .error(function (res) {
+
+            console.log("Error  " + res);
+        });
+
+    };
+
+
+    //---------------------------------------------------------------------------------------------------
+
+
+    $scope.updateData = function (urlnameOld, urlname1) {
+        console.log(urlnameOld);
+        $http.post('/updateData', { urlname: urlname1, urlnameOld: urlnameOld, username: $rootScope.currentUser.username })
+        .success(function (res) {
+            console.log("Success  " + res);
+            $scope.yourUrls = res;
+            $window.alert("Done Updating!");
+        })
+        .error(function (res) {
+
+            console.log("Error  " + res);
+        });
+
+
+    };
+
+    //---------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
+
 
 
 //----------------------------------------------------------------------------------------------/// UserController End-------------------------
