@@ -14,19 +14,19 @@
 <body>
     <div ng-controller="HomeController">
         <div class="jumbotron myjumbo">
-            <span class="label label-warning" id="visibleOfData">{{followStatus}}</span>
+            <!--<span class="label label-warning" id="visibleOfData">{{followStatus}}</span>-->
             
             <div ng-hide="userProfile.username == currentUser.username">
-                <button class="btn btn-success pull-right btn-lg" ng-hide="currentUser.follows.indexOf(userProfile.username) > -1" ng-click="follow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Follow/Unfollow">
+                <button class="btn btn-success pull-right btn-lg" ng-hide="currentUser.follows.indexOf(userProfile.username) > -1" ng-click="follow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Follow">
 
-                    <span class="glyphicon glyphicon-star-empty">
+                    <span>Follow
                     </span>
 
                 </button>
 
-                <button class="btn btn-danger pull-right btn-lg" ng-show="currentUser.follows.indexOf(userProfile.username) > -1" ng-click="unfollow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Follow/Unfollow">
+                <button class="btn btn-danger pull-right btn-lg" ng-show="currentUser.follows.indexOf(userProfile.username) > -1" ng-click="unfollow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Unfollow">
 
-                    <span class="glyphicon glyphicon-star">
+                    <span>Unfollow
                     </span>
 
                 </button>
@@ -35,9 +35,13 @@
 
             <h1>{{userProfile.first}} {{userProfile.last}}</h1>
 
+
+            <!--
             {{currentUser}}<br />
             {{userProfile}}<br /><br />
             {{currentUser.follows.indexOf(userProfile.username)}}
+                
+            -->
             <!--
                             <button class="btn btn-primary pull-right btn-lg" ng-click="follow(userProfile.username)">Follow</button>-->
 

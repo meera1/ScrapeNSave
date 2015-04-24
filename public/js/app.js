@@ -204,7 +204,7 @@ app.controller("HomeController", function ($scope, $http, $location, $rootScope)
                 $http.post('/follow', { current: $rootScope.currentUser.username, username1: user })
                 .success(function (res) {
                     console.log("follow success angular");
-                    $scope.followStatus = res;
+                    $scope.currentUser = res;
                 })
                 .error(function (res) {
                     console.log("Error:" + res);
@@ -225,13 +225,52 @@ app.controller("HomeController", function ($scope, $http, $location, $rootScope)
             console.log("in follow....loggedin error");
             console.log('Error:' + res);
         });
+}
+
+    //----
+
+    $scope.unfollow = function (user) {
+        console.log(user);
+
+
+        $http.get('/loggedin').success(function (use) {
+            console.log("in unfollow....loggedin success");
+
+            $rootScope.errorMessage = null; // User is Authenticated
+
+            if (use != '0') {
+                console.log("authenticated");
+
+                $http.post('/unfollow', { current: $rootScope.currentUser.username, username1: user })
+                .success(function (res) {
+                    console.log("unfollow success angular");
+                    $scope.currentUser = res;
+                })
+                .error(function (res) {
+                    console.log("Error:" + res);
+                });
+
+            }
+            else {
+                console.log("in unfollow....loggedin success...user authenticated...res = 0");
+                $rootScope.errorMessage = 'You Need To Log In Please';
+                $location.url('/login');
+                //$('#myname').hide();
+            }
 
 
 
-
+        })
+        .error(function (res) {
+            console.log("in unfollow....loggedin error");
+            console.log('Error:' + res);
+        });
     }
 
 
+
+
+    //----
 
 
 

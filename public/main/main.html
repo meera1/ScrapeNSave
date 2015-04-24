@@ -41,14 +41,14 @@
             </tr>
             <tr>
                 <th>
-                    <input type="text" class="form-control linkName btn-lg" placeholder="You'd like to call it..." ng-model=" url.linkname" id="linkName" />
+                    <input type="text" class="form-control linkName" placeholder="You'd like to call it..." ng-model=" url.linkname" id="linkName" />
                     
                 </th>
                 <th>
-                    <input id="link1" type="url" class="form-control link1 btn-lg" placeholder="http://www.google.com" ng-model=" url.link1">
+                    <input id="link1" type="url" class="form-control link1" placeholder="http://www.google.com" ng-model=" url.link1">
                 </th>
                 <th>
-                    <select ng-model="url.choice" required class="form-control btn-lg ">
+                    <select ng-model="url.choice" required class="form-control">
                         <option value="p">The P elements</option>
                         <option value="div">The Div elements</option>
                         
@@ -56,7 +56,7 @@
                     </select>
                 </th>
                 <th>
-                    <input type="submit" value="Submit" class="btn btn-primary btn-lg pull-right" id="url-submit" ng-click="urlSubmit(url)">
+                    <input type="submit" value="Submit" class="btn btn-primary pull-right btn-lg" id="url-submit" ng-click="urlSubmit(url)">
                 </th>
 
             </tr>
@@ -76,7 +76,7 @@
                     <p class="mypara">{{s.tagData}}</p>
                 </td>
                 <td width="2%">
-                    <button class="btn btn-success" ng-click="addData(s)">  /// check duplicates
+                    <button class="btn btn-success btn-lg" ng-click="addData(s)">  /// check duplicates
                         <span class="glyphicon glyphicon-ok"></span>
                     </button>
 

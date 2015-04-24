@@ -200,7 +200,7 @@ app.post('/follow', auth, function (req, res) {
                     console.log("Got current user   " + doc1);
                     doc1.follows.push(req.body.username1);
                     doc1.save();
-                    res.send("Unfollow");
+                    res.send(doc1);
                 }
                 else
                 {
@@ -223,7 +223,49 @@ app.post('/follow', auth, function (req, res) {
 
 });
 
+//-------
 
+
+app.post('/unfollow', auth, function (req, res) {
+
+    console.log("User in unfollow server *********************" + req.body.username1);
+    UserModel.findOne({ username: req.body.username1 }, function (error, doc) {
+
+        if (doc) {
+            console.log("Got user:  " + doc);
+            doc.followedBy.pull(req.body.current);
+            //doc.save();
+
+
+            UserModel.findOne({ username: req.body.current }, function (error1, doc1) {
+
+                if (doc1) {
+                    console.log("Got current user   " + doc1);
+                    doc1.follows.pull(req.body.username1);
+                    doc1.save();
+                    res.send(doc1);
+                }
+                else {
+                    console.log("Did not get  current user:  " + error1);
+                }
+
+
+            });
+
+
+
+
+        }
+        else {
+            console.log("Did not get user:  " + error);
+        }
+
+    });
+
+});
+
+
+//-------
 
 
 

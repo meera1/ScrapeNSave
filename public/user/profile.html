@@ -35,86 +35,139 @@
 </head>
 
 <body>
-<h1>profile</h1>
-
-    <p class="p12">Hello {{currentUser.username}}</p>
-
-    <div>
-        <button ng-click="askToScrape()" class="btn btn-lg btn-success btn-block">Start Scraping</button>
-    </div>
     
-    <!--
-    <div>
-        <a href="../main/redirect.html" class="btn btn-primary btn-lg pull-left">Scrape More Data</a>
-    </div>
-        -->
-    <div>
-        <button class="btn btn-primary btn-lg pull-right btn-block" ng-click="loadUrl()">Show My URL's</button>
-    </div>
+        <h1>profile</h1>
 
-    <div>
-        <table class="table mytable" ng-show="yourUrls.length > 0">
-            <thead>
-                <tr> <!--ng-show="yourUrls.length > 0"-->
-                    <th colspan="4">
-                        <h2 class="h22 white-font">Current URL Name</h2>
+        <p class="p12">Hello {{currentUser.username}}</p>
 
-                    </th>
-                    <th colspan="3">
-                        <h2 class="h22 white-font">Now you want it to be...</h2>
-                    </th>
 
-                </tr>
-                
-              
-              <!-- <tr ng-show="yourUrls.length > 0">
-                    <th colspan="4">
-                        <h2>{{choice}}'s Data </h2>
-                    </th>
-                </tr>--> 
+        <div>
+            <table class="pull-left table table table-responsive mytable">
+                <thead>
+                    <tr ng-show="currentUser.followedBy.length > 0">
+                        <th>
+                            Followed By
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="c in currentUser.followedBy" ng-show="currentUser.followedBy.length > 0">
+                        <td>
+                            {{c}}
+                        </td>
+                    </tr>
+                    <tr ng-hide="currentUser.followedBy.length > 0">
+                        <td>
+                            No One Follows You
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <input class="form-control btn-lg" readonly="readonly" ng-model="urlnameOld" /> </td>
-                     <td>   <input class="form-control btn-lg" ng-model="urlname1" /></td>
-                   <!-- <td>
-                        <input class="form-control btn-lg" ng-model="actualurl1"/>
-                    </td>-->
-                    <td>
-                        <button class="btn btn-success btn-lg" ng-click="updateData(urlnameOld, urlname1)">
-                            <span class="glyphicon glyphicon-ok"></span>
-                        </button>
-                    </td>
-                </tr>
-                <tr >
-                    <td colspan="2" ng-model="conditions"></td>
-                </tr>
-                <tr ng-repeat="y in yourUrls">
-                    <td>
-                        <p class="mypara">{{y.urlname}}</p>
-                    </td>
-                    <td>
-                        <p class="mypara">{{y.actualurl}}</p>
-                    </td>
-                    <td>
-                        <button class="btn btn-warning" ng-click="editData(y)">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </button>
-                        
-                        <button class="btn btn-primary" ng-click="openData(y)">
-                            Open
-                        </button>
+            <table class="pull-right table  table-responsive mytable">
+                <thead>
+                    <tr ng-show="currentUser.follows.length > 0">
+                        <th>
+                            You Follow
 
-                    </td>
-                </tr>
-               
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="s in currentUser.follows" ng-show="currentUser.follows.length > 0">
+                        <td>
+                            {{s}}
+                        </td>
+                    </tr>
+                    <tr ng-hide="currentUser.follows.length > 0">
+                        <td>
+                            You Do Not Follow AnyOne
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-            </tbody>
-         
-        </table>
-    </div>
-        
+
+
+        <div>
+            <button ng-click="askToScrape()" class="btn btn-lg btn-success btn-block">Start Scraping</button>
+        </div>
+
+        <!--
+        <div>
+            <a href="../main/redirect.html" class="btn btn-primary btn-lg pull-left">Scrape More Data</a>
+        </div>
+            -->
+        <div>
+            <button class="btn btn-primary btn-lg pull-right btn-block" ng-click="loadUrl()">Show My URL's</button>
+        </div>
+
+        <div>
+            <table class="table mytable" ng-show="yourUrls.length > 0">
+                <thead>
+                    <tr>
+                        <!--ng-show="yourUrls.length > 0"-->
+                        <th colspan="4">
+                            <h2 class="h22 white-font">Current URL Name</h2>
+
+                        </th>
+                        <th colspan="3">
+                            <h2 class="h22 white-font">Now you want it to be...</h2>
+                        </th>
+
+                    </tr>
+
+
+                    <!-- <tr ng-show="yourUrls.length > 0">
+                          <th colspan="4">
+                              <h2>{{choice}}'s Data </h2>
+                          </th>
+                      </tr>-->
+
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input class="form-control btn-lg" readonly="readonly" ng-model="urlnameOld" />
+                        </td>
+                        <td>   <input class="form-control btn-lg" ng-model="urlname1" /></td>
+                        <!-- <td>
+                             <input class="form-control btn-lg" ng-model="actualurl1"/>
+                         </td>-->
+                        <td>
+                            <button class="btn btn-success btn-lg" ng-click="updateData(urlnameOld, urlname1)">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" ng-model="conditions"></td>
+                    </tr>
+                    <tr ng-repeat="y in yourUrls">
+                        <td>
+                            <p class="mypara">{{y.urlname}}</p>
+                        </td>
+                        <td>
+                            <p class="mypara">{{y.actualurl}}</p>
+                        </td>
+                        <td>
+                            <button class="btn btn-warning" ng-click="editData(y)">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </button>
+
+                            <button class="btn btn-primary" ng-click="openData(y)">
+                                Open
+                            </button>
+
+                        </td>
+                    </tr>
+
+
+                </tbody>
+
+            </table>
+        </div>
+   
 </body>
 </html>

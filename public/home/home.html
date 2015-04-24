@@ -30,7 +30,7 @@
 
             </thead>
             <tbody>
-                <tr ng-repeat="s in wallresults">
+                <tr ng-repeat="s in wallresults" ng-hide="currentUser.username == s.username">
 
                     <td>
                         {{s.walldata}}

@@ -5,9 +5,11 @@
     <title>Index</title>
     <link href="css/bootstrap.css" rel="stylesheet" />
     <link href="css/bootstrap-theme.css" rel="stylesheet" />
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet" />
     <link href="css/index.css" rel="stylesheet" />
     <script src="js/jquery.js"></script>
     <script src="js/jquery-ui.js"></script>
+    <script src="js/jquery-1.11.2.min.js"></script>
     <script src="js/angular.js"></script>
     <script src="js/angular-route.js"></script>
     <script src="js/bootstrap.js"></script>
@@ -33,17 +35,46 @@
 
             <!--passport starts here-->
 
-            <ul class="nav nav-justified navbar-inverse btn-lg mynav" ng-controller="ScrapingController">
+            <ul class="nav nav-justified navbar-inverse mynav btn-lg" ng-controller="ScrapingController">
                 <li role="presentation" class="active"><a href="#home">Home</a></li>
                 <li role="presentation" id="loginId"><a href="#login">Login</a></li>
                 <li role="presentation" id="registerId"><a href="#register" ng-click="register(user)">Register</a></li>
                 <li role="presentation"><a href="#profile">Profile</a></li>
                 <li role="presentation" id="logoutId"><a href="#logout" ng-click="logout()">Logout</a></li>
-                
+
             </ul>
 
+            <!--
+            <nav class="navbar navbar-default navbar-inverse mynav">
+                <div class="container-fluid">
+                   
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <span class="navbar-brand">ScrapeNSave</span>
+                    </div>
+                   
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
 
 
+                            <li role="presentation" class="active"><a href="#home">Home</a></li>
+                            <li role="presentation" id="loginId"><a href="#login">Login</a></li>
+                            <li role="presentation" id="registerId"><a href="#register" ng-click="register(user)">Register</a></li>
+                            <li role="presentation"><a href="#profile">Profile</a></li>
+                            <li role="presentation" id="logoutId"><a href="#logout" ng-click="logout()">Logout</a></li>
+                        </ul>
+
+
+                    </div>
+                </div>
+            </nav>
+
+        -->
 
             <!--passport ends here-->
 
