@@ -529,7 +529,7 @@ app.controller("ProfileController", function ($scope, $http, $location, $rootSco
             $http.post('/share', { username: $rootScope.currentUser.username, urlname: urlname, actualdata: actualdata })
             .success(function (res) {
 
-                $window.alert("Done!");
+                //$window.alert("Done!");
                 $rootScope.opendata = res;
                
             })
@@ -832,7 +832,21 @@ app.controller("ScrapingController", function ($scope, $http, $location, $window
     $scope.datum = [];
 
     $scope.addData = function (s) {
-        $scope.datum.push(s);
+
+        var c = 0;
+        for (var i = 0; i < $scope.datum.length; i++) {
+
+            if (s == $scope.datum[i]) {
+                c = 1;
+            }
+
+           
+        }
+
+        if (c == 0) {
+            $scope.datum.push(s);
+        }
+        
 
         console.log("datum in angular   " + s.dataUrl);
         console.log("datum in angular   " + s.tagData);

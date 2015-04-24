@@ -30,13 +30,16 @@
 
             </thead>
             <tbody>
-                <tr ng-repeat="s in wallresults" ng-hide="currentUser.username == s.username">
+                <tr ng-repeat="s in wallresults">
 
                     <td>
                         {{s.walldata}}
                     </td>
-                    <td>
+                    <td ng-hide="currentUser.username == s.username">
                         <a class="a1" ng-click="showUser(s.username)">{{s.username}}</a>
+                    </td>
+                    <td ng-show="currentUser.username == s.username">
+                        {{s.username}}
                     </td>
 
 
