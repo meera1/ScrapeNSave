@@ -16,17 +16,28 @@
         <div class="jumbotron myjumbo">
             <span class="label label-warning" id="visibleOfData">{{followStatus}}</span>
             
-           
-                <button class="btn btn-primary pull-right btn-lg" ng-click="follow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Follow/Unfollow">
+            <div ng-hide="userProfile.username == currentUser.username">
+                <button class="btn btn-success pull-right btn-lg" ng-hide="currentUser.follows.indexOf(userProfile.username) > -1" ng-click="follow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Follow/Unfollow">
 
-                    <span class="glyphicon glyphicon-flash">
+                    <span class="glyphicon glyphicon-star-empty">
                     </span>
 
                 </button>
-           
+
+                <button class="btn btn-danger pull-right btn-lg" ng-show="currentUser.follows.indexOf(userProfile.username) > -1" ng-click="unfollow(userProfile.username)" data-toggle="tooltip" data-placement="right" title="Click to Follow/Unfollow">
+
+                    <span class="glyphicon glyphicon-star">
+                    </span>
+
+                </button>
+            </div>
+
 
             <h1>{{userProfile.first}} {{userProfile.last}}</h1>
 
+            {{currentUser}}<br />
+            {{userProfile}}<br /><br />
+            {{currentUser.follows.indexOf(userProfile.username)}}
             <!--
                             <button class="btn btn-primary pull-right btn-lg" ng-click="follow(userProfile.username)">Follow</button>-->
 
