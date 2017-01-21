@@ -1,91 +1,35 @@
-﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en" ng-app="ScrapeApp">
 <head>
-   
-    <title>Index</title>
-    <link href="css/bootstrap.css" rel="stylesheet" />
-    <link href="css/bootstrap-theme.css" rel="stylesheet" />
-    <link href="css/bootstrap-responsive.min.css" rel="stylesheet" />
-    <link href="css/index.css" rel="stylesheet" />
-    <script src="js/jquery.js"></script>
-    <script src="js/jquery-ui.js"></script>
-    <script src="js/jquery-1.11.2.min.js"></script>
-    <script src="js/angular.js"></script>
-    <script src="js/angular-route.js"></script>
-    <script src="js/bootstrap.js"></script>
-    <!--script src="js/bootstrap.min.js"><script>-->
-    <script src="/js/app.js"></script>
-    
+    <meta charset="UTF-8">
+    <title>ScrapeNSave</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="resources/css/style.css" rel="stylesheet" type="text/css">
+    <link href="resources/css/sweetalert.css" rel="stylesheet" type="text/css">
 </head>
-<body ng-app="ScrapingApp" class="main img-responsive">
-    <div class="container">
-        <div ng-controller="ScrapingController">
+<body>
+    <!--<ng-include src="'views/header/header.view.html'"></ng-include>-->
+    <div ng-include="'views/header/header.view.html'"></div>
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <div ng-view></div>
+    </div>
+    <div class="col-sm-3"></div>
 
-            <div class="mymodal">
-               <!--<button type="button" class="btn btn-primary btn-lg pull-right" data-toggle="modal" data-target="#exampleModal">
-                    Login
-                </button> -->
-                <!--<p><span>Hello {{name}}</span></p>-->
-                
-
-            </div>
-
-                       
-            <h1 class="head white-font">Go ahead and scrape the data you love!!!</h1>
-
-            <!--passport starts here-->
-
-            <ul class="nav nav-justified navbar-inverse mynav btn-lg" ng-controller="ScrapingController">
-                <li role="presentation" class="active"><a href="#home">Home</a></li>
-                <li role="presentation" id="loginId"><a href="#login">Login</a></li>
-                <li role="presentation" id="registerId"><a href="#register" ng-click="register(user)">Register</a></li>
-                <li role="presentation"><a href="#profile">Profile</a></li>
-                <li role="presentation" id="logoutId"><a href="#logout" ng-click="logout()">Logout</a></li>
-
-            </ul>
-
-            <!--
-            <nav class="navbar navbar-default navbar-inverse mynav">
-                <div class="container-fluid">
-                   
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <span class="navbar-brand">ScrapeNSave</span>
-                    </div>
-                   
-                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                        <ul class="nav navbar-nav">
-
-
-                            <li role="presentation" class="active"><a href="#home">Home</a></li>
-                            <li role="presentation" id="loginId"><a href="#login">Login</a></li>
-                            <li role="presentation" id="registerId"><a href="#register" ng-click="register(user)">Register</a></li>
-                            <li role="presentation"><a href="#profile">Profile</a></li>
-                            <li role="presentation" id="logoutId"><a href="#logout" ng-click="logout()">Logout</a></li>
-                        </ul>
-
-
-                    </div>
-                </div>
-            </nav>
-
-        -->
-
-            <!--passport ends here-->
-
-
-
-                        <div ng-view class="myview mytable">
-
-                        </div>
-             
-            
-                    </div>
-                </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.js"></script>
+    <script src="app.js"></script>
+    <script src="config.js"></script>
+    <script src="services/scrape.service.client.js"></script>
+    <script src="services/user.service.client.js"></script>
+    <script src="views/header/navigation.controller.js"></script>
+    <script src="views/login/login.controller.js"></script>
+    <script src="views/profile/profile.controller.js"></script>
+    <script src="views/register/register.controller.js"></script>
+    <script type="text/javascript" src="views/scrapewall/scrapewall.controller.js"></script>
+    <script type="text/javascript" src="resources/js/sweetalert.min.js"></script>
+    <script src="resources/js/ngSweetAlert.js"></script>
 </body>
 </html>

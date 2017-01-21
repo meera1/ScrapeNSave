@@ -1,0 +1,15 @@
+<table>
+    <thead>
+    <tr>
+        <th>
+            Data shared by users
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="data in model.sharedData">
+        <td>{{model.sharedData.username}}</td>
+        <td>{{model.sharedData.data}}</td>
+    </tr>
+    </tbody>
+</table>

@@ -1,0 +1,14 @@
+<table>
+    <thead>
+    <tr>
+        <th><input ng-model="model.url.name" class="form-control" type="text" placeholder="name" /></th>
+        <th><input ng-model="model.url.actualUrl" class="form-control" type="text" placeholder="eg. http://www.google.com" /></th>
+        <th><button ng-click="model.scrapeData(model.url);" class="btn btn-primary btn-block">Scrape</button></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>{{model.data}}</td>
+    </tr>
+    </tbody>
+</table>
